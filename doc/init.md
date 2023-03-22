@@ -58,7 +58,9 @@ We select the working directory (dev file in our computer) and insert the data-b
         $ cd Documents/dev
         $ git clone https://github.com/lucasmonteiro4/data-base.git data-base
         $ cd data-base
-        $ sqlite3
+        $ sqlite3 project.db
+
+We name the database *project.db*.
 
 
 ## 3. Documentation <a name="doc"></a>
