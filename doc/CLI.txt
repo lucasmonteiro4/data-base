@@ -1,0 +1,128 @@
+Data base
+
+Authors : Chérif YAKER & Lucas MONTEIRO
+
+Date : 02/04/2023
+
+Documentation:
+	https://developer.fedoraproject.org/tech/database/sqlite/about.html
+	https://www.sqlite.org/datatype3.html
+	https://www.sqlite.org/lang_createtable.html
+
+Command Line execution to init the project
+	$ sudo dnf install sqlite
+	$ cd Documents/dev
+	$ git clone https://github.com/lucasmonteiro4/data-base.git data_base
+	$ cd data_base
+
+	$ sqlite3 
+	$ .open "project.db"
+
+to rewrite csv without the header
+with open("test.csv",'r') as f:
+    with open("updated_test.csv",'w') as f1:
+        next(f) # skip header line
+        for line in f:
+            f1.write(line)
+            
+	sqlite> .cd logic
+	sqlite> .read script_part1.sql
+	sqlite> .schema
+
+.tables
+	author_			controversy_          		parent_            subreddit_       
+	depends_           	removal_              		comment_           distinguished_     
+	removed_  	   	is_distinguished_		score_       
+
+
+sqlite> .mode csv
+
+sqlite> .separator ","
+
+
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/askreddit_author.csv author_
+
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/askreddit_distinguihshed.csv distinguished_
+
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/askreddit_controverse.csv controversy_
+
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/askreddit_removal.csv removal_
+
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/askreddit_parent.csv parent_
+
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/askreddit_subreddit.csv subreddit_
+
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/clean_comment.csv comment_
+	/home/user/Documents/dev/data_base/data/tables/clean_comment.csv:2: expected 10 columns but found 1 - filling the rest with NULL
+	
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/askreddit_score.csv score_
+
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/askreddit_is_distinguihshed.csv is_distinguished_
+
+sqlite> .import /home/user/Documents/dev/data_base/data/tables/askreddit_depends.csv depends_
+
+sqlite> pragma table_info(author_);
+	0,author,TEXT,0,,1
+	
+sqlite> pragma table_info(distinguished_);
+	0,distinguished,TEXT,0,,1
+	
+sqlite> pragma table_info(controversy_);
+	0,controversiality,"",0,,1
+	
+sqlite> pragma table_info(removal_);
+	0,removal_reason,TEXT,0,,1
+	
+sqlite> pragma table_info(parent_);
+	0,parent_id,TEXT,0,,1
+	1,link_id,TEXT,0,,0
+	
+sqlite> pragma table_info(subreddit_);
+	0,subreddit_id,TEXT,0,,1
+	1,subreddit,TEXT,0,,0
+	
+sqlite> pragma table_info(comment_);
+	0,id,TEXT,0,,1
+	1,created_utc,INTEGER,0,,0
+	2,name,TEXT,0,,0
+	3,body,TEXT,0,,0
+	4,edited,INTEGER,0,,0
+	5,author_flair_css_class,TEXT,0,,0
+	6,author_flair_text,TEXT,0,,0
+	7,author,TEXT,0,,0
+	8,controversiality,INTEGER,0,,0
+	9,subreddit_id,TEXT,0,,0
+	
+sqlite> pragma table_info(score_);
+	0,id,TEXT,0,,1
+	1,score,INTEGER,0,,0
+	2,ups,INTEGER,0,,0
+	3,downs,INTEGER,0,,0
+	4,score_hidden,"",0,,0
+	5,gilded,INTEGER,0,,0
+	
+sqlite> pragma table_info(is_distinguished_);
+	0,id,TEXT,0,,1
+	1,distinguished,TEXT,0,,2
+	
+sqlite> pragma table_info(depends_);
+	0,id,TEXT,0,,1
+	1,parent_id,TEXT,0,,2
+	
+sqlite> .quit
+
+$ install sqlite-analyzer 
+$ sqlite3_analyzer project.db
+	return a deep description of the database that we have created
+	this allows us to check the number of entries, the size of each tables and several other information
+
+
+Requête
+
+select count(*) from author_;
+
+select count(*) from comment_;
+
+select avg(score) from score_;
+
+
