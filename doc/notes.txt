@@ -93,3 +93,20 @@ partie 3: exploration initiale de la base de données :
 		4234970 
 
 		
+partie 4: exploration approfondie de la base de données :
+
+		sqlite> select id, max(score) from score_;
+		cr56nez | 6761
+
+		-- get comment with highest score
+		sqlite> select c.id, c.body, s_max.max_score from comment_ c, (select id as id_score, max(score) as max_score from score_) s_max where s_max.id_score = c.id;
+		
+		-- get top 5 authors with the most number of comments
+		sqlite> select a_c.* from (select author, count(author) as count_author from comment_ group by author) a_c order by a_c.count_author desc limit 5;
+		
+		-- 2 first authors are [deleted] and AutoModerator, we need to remove them
+
+		sqlite> 
+
+		-- get average score of the one who publish the most
+		
