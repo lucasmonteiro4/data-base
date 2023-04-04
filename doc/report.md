@@ -37,7 +37,7 @@ $ cd data_base
 We create the database (*project.db*) in the **data_base/** folder
 
 ```shell
-$ sqlite3 "project.open"
+$ sqlite3 "project.db"
 ```
 
 We execute the SQL file *script_part1.sql* (in the folder **logic/**) to create the schema and the tables.
@@ -109,9 +109,24 @@ with open("tables/askreddit_author.csv", "r") as f:
 ### Database loading
 
 ```sql
+.cd ..
 .mode csv
 .separator ","
 
+.cd data/clean_tables
+.import clean_author.csv author_
+.import clean_distinguihshed.csv distinguihshed_
+.import clean_controverse.csv controversy_
+.import clean_removal.csv removal_
+.import clean_parent.csv parent_
+.import clean_subreddit.csv subreddit_
+.import clean_comment.csv comment_
+.import clean_score.csv score_
+.import clean_is_dist.csv is_distinguished_
+.import clean_depends.csv depends_
+```
+
+```sql
 .import /home/use/Documents/dev/data_base/data/clean_tables/clean_author.csv author_
 .import /home/use/Documents/dev/data_base/data/clean_tables/clean_distinguihshed.csv distinguihshed_
 .import /home/use/Documents/dev/data_base/data/clean_tables/clean_controverse.csv controversy_
@@ -176,7 +191,11 @@ from comment_ c, (select id as id_score, max(score) as max_score
                     from score_) s_max 
 where s_max.id_score = c.id;
 ```
-**insert response table**
+
+| id      | body                                        | max_score |
+|---------|---------------------------------------------|-----------|
+| cr56nez | Then you got yourself a one night standoff. | 6761      |
+
 
 Direct 
 ```sql
@@ -189,7 +208,14 @@ order by a_c.count_author desc
 limit 5;
 ```
 
-**insert response table**
+| author              | count_author |
+|---------------------|--------------|
+| Late_Night_Grumbler | 8298         |
+| BiagioLargo         | 5843         |
+| -_-Equinox666-_-    | 2989         |
+| KubrickIsMyCopilot  | 2601         |
+| Megaross            | 2479         |
+
 
 Indirect (but long and heavy)
 
@@ -207,13 +233,20 @@ order by a_c.count_author desc
 limit 5;
 ```
 
-**insert response table**
+| author              | count_author |
+|---------------------|--------------|
+| Late_Night_Grumbler | 8298         |
+| BiagioLargo         | 5843         |
+| -_-Equinox666-_-    | 2989         |
+| KubrickIsMyCopilot  | 2601         |
+| Megaross            | 2479         |
+
 
 
 Average score of the one who commented the most
 
 ```sql
-select avg(s.score), c.author 
+select round(avg(s.score),2), c.author 
 from comment_ c, (select id as id_score, score 
                     from score_) s 
 where c.id = s.id_score 
@@ -230,7 +263,10 @@ and c.author in (select a_c.author
 ;
 ```
 
-**insert response table**
+| avg_score | author              |
+|-----------|---------------------|
+| 4.75      | Late_Night_Grumbler |
+
 
 Top 5 Authors with the highest average score
 
@@ -244,13 +280,113 @@ order by avg_score desc
 limit 5;
 ```
 
-**insert response table**
+| author              | avg_score |
+|---------------------|-----------|
+| lenaeca             | 5383.0    |
+| CCorinne            | 4836.0    |
+| The0isaZero         | 4834.0    |
+| 4eyedoracle         | 4815.0    |
+| planetoiletsscareme | 4755.0    |
+
+Get the comment of the one who has the highest average score.
 
 ```sql
-
+select c.id, c.body, c.author, s.score 
+from comment_ c, score_ s
+where c.id = s.id
+and author in (select ha.author 
+                from (select author, avg(s.score) as avg_score 
+                        from comment_ c, (select id as id_score, score from score_) s 
+                        where c.id = s.id_score 
+                        group by author 
+                        order by avg_score desc 
+                        limit 1) ha);
 ```
 
-**insert response table**
+| id | body | author | score |
+|---|---|---|---|
+| crcgqnq | "You get really nervous, but you shouldn't be, because you teach statistics and no one really cares about statistics."    This was after my first semester as a Graduate teaching assistant. | lenaeca | 5383 |
+
+### Controversiality
+
+```sql
+select * 
+from comment_ 
+where controversiality == 1 limit 3;
+```
+
+| id | body | author | controversiality |
+|---|---|---|---|
+| cqug921 | I honestly wouldn't have believed it if I didn't live it. She made his life hell  and I had a front row seat. I'm just glad I had a front row seat to her confession and firing. :) | youthfulvictim | 1 |
+| cqug94y | The implications of that varies between cultures. Don't be racist. | robondes | 1 |
+| cqug95f | You're just trying to get to the front page.  I see through your facade!!! | JustMe80 | 1 |
+
+Count number of controversial and non-controversial posts
+
+```sql
+select count(*) as nb_posts 
+from comment_ c 
+group by c.controversiality;
+```
+| | nb_posts  |
+|-|-----------|
+|''| 1         |
+|controversiality = 0| 4182752   |
+|controversiality = 1| 52218     |
+
+
+Get average score of controversial posts against non controversial ones
+
+```sql
+select round(avg(s.score),2) as average_score 
+from comment_ c, (select id, score from score_) s 
+where c.id = s.id 
+group by c.controversiality;
+```
+
+| | average_score  |
+|-|-----------|
+|controversiality = 0| 12.75   |
+|controversiality = 1| 0.86     |
+
+Get top 5 authors that are the most controversial (measured with the number of controversial posts)
+
+```sql
+select author, count(*) as count_author 
+from comment_ 
+where controversiality==1 
+group by author 
+order by count_author desc 
+limit 5;
+```
+
+| author | count_author |
+|:---:|:---:|
+| [deleted] | 4685 |
+| CorDeFerrum | 95 |
+| AutoModerator | 92 |
+| Megaross | 60 |
+| berke_k | 58 |
+
+To get rid off of *[deleted]* and *AutoModerator* (note that it is surprising to find *AutoModerator* in the controversial post, an explanation could be that *AutoModerator* posts many times and that some users could signal it as controversial; more generally we find also find *Megaross* and *KubrickIsMyCopilot*, who are also in the group of users who have the most posted):
+
+```sql
+select author, count(*) as count_author 
+from comment_ 
+where controversiality==1 
+    and author not in ('[deleted]', 'AutoModerator')  
+group by author 
+order by count_author desc 
+limit 5;
+```
+
+|       author       	| count_author 	|
+|:------------------:	|--------------	|
+| CorDeFerrum        	| 95           	|
+| Megaross           	| 60           	|
+| berke_k            	| 58           	|
+| KubrickIsMyCopilot 	| 57           	|
+| -_-Equinox666-_-      | 49            |
 
 ## Part 5
 
