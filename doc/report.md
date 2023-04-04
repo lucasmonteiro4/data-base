@@ -12,7 +12,7 @@ Architecture of the project is as follow :
 data_base/
     - data/
         - tables/
-        - clean_tables/
+        - cleaned/
         - data_dictionary
     - logic/
         - script.sql
@@ -43,9 +43,9 @@ $ sqlite3 "project.db"
 We execute the SQL file *script_part1.sql* (in the folder **logic/**) to create the schema and the tables.
 
 ```sql
-.cd logic
-.read script_part1.sql
-.tables
+sqlite> .cd logic
+sqlite> .read script_part1.sql
+sqlite> .tables
 ```
 
 ## Part 2
@@ -87,6 +87,21 @@ with open('clean_comment.csv', 'w') as f:
     f.write(clean_content)
 ```
 
+To execute this code, we quit SQLite, we create the folder cleaned (to host the cleaned data) and run the script.
+
+```shell
+sqlite> .quit
+$ cd data
+$ mkdir cleaned
+$ cd -
+```
+
+Then at **data_base** level we execute the python script :
+
+```shell
+$ python3 logic/python_scripts/clean_headers.py
+```
+
 The second python script concerns the removing to the header. When we have created the schema in the Part 1, we have created names for the columns. Hence, when we will import the data, the first row of each table will be the header in the .csv, we have to remove. (It surely exists another method, more efficient, but we did not find it.)
 
 Here is an example for the table *askreddit_author.csv* ;
@@ -106,14 +121,27 @@ with open("tables/askreddit_author.csv", "r") as f:
 				g.write(line)
 ```
 
+```shell
+$ python3 clean_headers.py
+```
+
 ### Database loading
 
+We quit the **logic/python_scripts** directory to go again in the **data_base/** and we return into SQLite.
+
+```shell
+$ cd..
+$ cd..
+$ sqlite3
+```
+
+We now load data into the database. To do so, we first indicate the type of data we are going to load (*csv*), we specify the separator and finally we set the directory as **data/cleaned/** since cleaned data are in this folder. 
+
 ```sql
-.cd ..
 .mode csv
 .separator ","
 
-.cd data/clean_tables
+.cd data/cleaned
 .import clean_author.csv author_
 .import clean_distinguihshed.csv distinguihshed_
 .import clean_controverse.csv controversy_
@@ -126,18 +154,9 @@ with open("tables/askreddit_author.csv", "r") as f:
 .import clean_depends.csv depends_
 ```
 
-```sql
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_author.csv author_
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_distinguihshed.csv distinguihshed_
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_controverse.csv controversy_
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_removal.csv removal_
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_parent.csv parent_
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_subreddit.csv subreddit_
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_comment.csv comment_
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_score.csv score_
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_is_dist.csv is_distinguished_
-.import /home/use/Documents/dev/data_base/data/clean_tables/clean_depends.csv depends_
+Finally we activate the headers to have the name of columns when we will execute queries.
 
+```sql
 .headers on
 ```
 
@@ -198,6 +217,7 @@ where s_max.id_score = c.id;
 
 
 Direct 
+
 ```sql
 select a_c.* 
 from (select author, count(author) as count_author 
@@ -312,7 +332,8 @@ and author in (select ha.author
 ```sql
 select * 
 from comment_ 
-where controversiality == 1 limit 3;
+where controversiality == 1 
+limit 3;
 ```
 
 | id | body | author | controversiality |
