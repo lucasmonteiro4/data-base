@@ -27,8 +27,8 @@ data_base/
         - cleaned/
         - data_dictionary
     - logic/
-        - script.sql
-        - py_script/
+        - sql_scripts/
+        - python_scripts/
     - doc/
         - report.md
     project.db
@@ -41,7 +41,7 @@ data_base/
 
 **data/cleaned/** contains data that have been preprocessed, these data are the one that are actually used.
 
-The original data are not in the repo since it is to heavy (> 1GB) to store it in the GitHub repository. Hence, raw data have to be placed in the folder **data/raw/**. 
+The original data are not in the repo since it is too heavy (> 1GB) to store it in the GitHub repository. Hence, raw data have to be placed in the folder **data/raw/**. 
 
 For information, **raw/** folder contains :
  - askreddit_author.csv
@@ -54,11 +54,15 @@ For information, **raw/** folder contains :
  - askreddit_depends.csv
  - askreddit_is_distinguihshed.csv
 
+**cleaned/** is empty, it is normal it will host the data once they are preprocessed (also too heavy, to get them : follow instruction in Part 2 and Python scripts).
+
 **logic/** contains all the code that we execute(SQL for database, Python for preprocessing).
 
-**doc/** contains all the necessary documentation to understand the project (*e.g.* this report)
+**doc/** contains all the necessary documentation to understand the project (*e.g.* this report).
 
-Once we have detailed the content of each folder, we can now clone the git repository and we select it as current directory. One can also separatly recover data/, logic/ and doc/ and put them in a folder named **data_base**.
+Once we have detailed the content of each folder, we can now clone the git repository and we select it as current directory. 
+
+One can also separatly recover **data/**, **logic/** and **doc/** and put them in a folder named **data_base**.
 
 ```shell
 $ git clone https://github.com/lucasmonteiro4/data-base.git data_base
