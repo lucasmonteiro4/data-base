@@ -1,5 +1,7 @@
 # Report Data Base - Chérif YAKER & Lucas MONTEIRO - M2 STAT-ECO - TSE
 
+The PDF file has been automatically generated from the markdown file.
+
 For this project, we have decided to use SQLite since it is a light, pratical and fast database tool. Moreover, we have made the project only through the command line since it is fast, simple and we didn't want to be constraint by the heavyness of a software such as Oracle. Note that we have made the project on Linux Fedora (Workstation 37).
 
 The project is organized as follow :
@@ -810,7 +812,6 @@ sqlite> insert into red_db.distinguished_
    ...> select * from distinguished_;
 ```
 
-## Documentation and resources
 
 ## Appendice
 
